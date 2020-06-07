@@ -3,7 +3,7 @@ import 'package:new_zealand_travel_guide/custom_drawer/drawer_user_controller.da
 import 'package:new_zealand_travel_guide/custom_drawer/home_drawer.dart';
 import 'package:new_zealand_travel_guide/feedback_screen.dart';
 import 'package:new_zealand_travel_guide/help_screen.dart';
-import 'package:new_zealand_travel_guide/attraction/home.dart';
+import 'package:new_zealand_travel_guide/attraction/home_page.dart';
 import 'package:new_zealand_travel_guide/invite_friend_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class _NavigationState extends State<Navigation> {
   @override
   void initState() {
     drawerIndex = DrawerIndex.HOME;
-    screenView = Home();
+    screenView = HomePage();
     super.initState();
   }
 
@@ -52,7 +52,7 @@ class _NavigationState extends State<Navigation> {
       drawerIndex = drawerIndexdata;
       if (drawerIndex == DrawerIndex.HOME) {
         setState(() {
-          screenView = Home();
+          screenView = HomePage();
         });
       } else if (drawerIndex == DrawerIndex.Help) {
         setState(() {

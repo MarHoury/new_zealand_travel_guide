@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 import 'home_theme.dart';
 import 'models/attraction.dart';
 
-class Home extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  _HomeState createState() => _HomeState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _HomeState extends State<Home> {
+class _HomePageState extends State<HomePage> {
   GooglePlace googlePlace;
   List<AutocompletePrediction> predictions = [];
   List<SearchResult> results = [];
@@ -87,8 +87,8 @@ class _HomeState extends State<Home> {
           ),
         ),
         PopularAttractionListView(
-          callBack: (detailPlaceId, detailReference) {
-            moveTo(detailPlaceId, detailReference);
+          callBack: (detailPlaceId) {
+            moveTo(detailPlaceId);
           },
           popularAttractionList: popularAttractions,
         ),
@@ -115,8 +115,8 @@ class _HomeState extends State<Home> {
           ),
           Flexible(
             child: NearbyAttractionListView(
-              callBack: (detailPlaceId, detailReference) {
-                moveTo(detailPlaceId, detailReference);
+              callBack: (detailPlaceId) {
+                moveTo(detailPlaceId);
               },
               nearbyAttractionList: nearbyAttractions,
             ),
@@ -126,25 +126,26 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void moveTo(detailPlaceId, detailReference) {
+  void moveTo(detailPlaceId) {
     Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => AttractionDetailPage(placeId: detailPlaceId, reference: detailReference),
+        builder: (BuildContext context) => AttractionDetailPage(
+            placeId: detailPlaceId, googlePlace: this.googlePlace),
       ),
     );
   }
 
   Widget getSearchBarUI() {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0, left: 18),
+      padding: const EdgeInsets.only(top: 8.0, left: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             width: MediaQuery.of(context).size.width * 0.75,
-            height: 64,
+            height: 74,
             child: Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Container(
@@ -185,7 +186,11 @@ class _HomeState extends State<Home> {
                               color: HexColor('#B9BABC'),
                             ),
                           ),
-                          onEditingComplete: () {},
+                          onEditingComplete: () {
+                            FocusScope.of(context)
+                                .requestFocus(new FocusNode());
+                            search();
+                          },
                           onChanged: (value) {
                             if (value.isNotEmpty) {
                               autoCompleteSearch(value);
@@ -210,9 +215,6 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          const Expanded(
-            child: SizedBox(),
-          )
         ],
       ),
     );
@@ -273,7 +275,9 @@ class _HomeState extends State<Home> {
                         : true,
                 placeId: e.placeId,
                 rating: e.rating,
-                photoReference: (e.photos != null && e.photos.length > 0) ? e.photos[0].photoReference : ''))
+                photoReference: (e.photos != null && e.photos.length > 0)
+                    ? e.photos[0].photoReference
+                    : ''))
             .toList();
       });
     }
@@ -297,7 +301,9 @@ class _HomeState extends State<Home> {
                         : true,
                 placeId: e.placeId,
                 rating: e.rating,
-                photoReference: (e.photos != null && e.photos.length > 0) ? e.photos[0].photoReference : ''))
+                photoReference: (e.photos != null && e.photos.length > 0)
+                    ? e.photos[0].photoReference
+                    : ''))
             .toList();
       });
     }
@@ -320,5 +326,54 @@ class _HomeState extends State<Home> {
         predictions = result.predictions;
       });
     }
+  }
+
+  void search() {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (builder) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.8,
+            padding: EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30)),
+                color: Colors.white),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: predictions.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: CircleAvatar(
+                          child: Icon(
+                            Icons.pin_drop,
+                            color: HomeAppTheme.nearlyWhite,
+                          ),
+                        ),
+                        title: Text(predictions[index].description),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AttractionDetailPage(
+                                placeId: predictions[index].placeId,
+                                googlePlace: this.googlePlace,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            )
+          );
+        });
   }
 }

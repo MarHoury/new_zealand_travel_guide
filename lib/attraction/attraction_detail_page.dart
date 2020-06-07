@@ -6,25 +6,30 @@ import 'home_theme.dart';
 import 'models/attraction_detail.dart';
 
 class AttractionDetailPage extends StatefulWidget {
-  const AttractionDetailPage({Key key, this.placeId, this.reference})
+  const AttractionDetailPage({Key key, this.placeId, this.googlePlace})
       : super(key: key);
 
   final String placeId;
-  final String reference;
+  final GooglePlace googlePlace;
 
   @override
-  _AttractionDetailPageState createState() => _AttractionDetailPageState();
+  _AttractionDetailPageState createState() =>
+      _AttractionDetailPageState(this.placeId, this.googlePlace);
 }
 
 class _AttractionDetailPageState extends State<AttractionDetailPage>
     with TickerProviderStateMixin {
   final double infoHeight = 364.0;
+  final String placeId;
+  final GooglePlace googlePlace;
+
+  _AttractionDetailPageState(this.placeId, this.googlePlace);
+
   AnimationController animationController;
   Animation<double> animation;
   double opacity1 = 0.0;
   double opacity2 = 0.0;
   double opacity3 = 0.0;
-  GooglePlace googlePlace;
   AttractionDetail attractionDetail;
   Uint8List photo;
 
@@ -37,11 +42,7 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
         curve: Interval(0, 1.0, curve: Curves.fastOutSlowIn)));
     setData();
 
-    String apiKey = 'AIzaSyDVQyYIOmmXRMgyA_pQgCCsGr_iANHJbSA';
-    googlePlace = GooglePlace(apiKey);
-
     getAttractionDetailFromGoogle();
-    getAttractionPhotosFromGoogle();
 
     super.initState();
   }
@@ -141,11 +142,13 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  'User Ratings Total: ' +
-                                      (attractionDetail != null
-                                          ? attractionDetail.userRatingsTotal
-                                              .toString()
-                                          : 'N/A'),
+                                  (attractionDetail != null &&
+                                          attractionDetail.userRatingsTotal !=
+                                              null)
+                                      ? ('User Ratings Total: ' +
+                                          attractionDetail.userRatingsTotal
+                                              .toString())
+                                      : '',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w200,
@@ -158,7 +161,7 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                                   child: Row(
                                     children: <Widget>[
                                       Text(
-                                        attractionDetail != null
+                                        (attractionDetail != null && attractionDetail.rating != null)
                                             ? attractionDetail.rating.toString()
                                             : '0.0',
                                         textAlign: TextAlign.left,
@@ -345,23 +348,32 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
   }
 
   void getAttractionDetailFromGoogle() async {
-    var result = await googlePlace.details.get(widget.placeId,
+    var result = await googlePlace.details.get(this.placeId,
         fields:
             'name,formatted_address,formatted_phone_number,rating,website,photo,opening_hours,price_level,user_ratings_total');
     if (result != null && result.result != null && mounted) {
       setState(() {
         attractionDetail = AttractionDetail(
             name: result.result.name,
-            formattedAddress: result.result.formattedAddress != null ? result.result.formattedAddress : 'N/A',
-            formattedPhoneNumber: result.result.formattedPhoneNumber != null ? result.result.formattedPhoneNumber : 'N/A',
+            formattedAddress: result.result.formattedAddress != null
+                ? result.result.formattedAddress
+                : 'N/A',
+            formattedPhoneNumber: result.result.formattedPhoneNumber != null
+                ? result.result.formattedPhoneNumber
+                : 'N/A',
             rating: result.result.rating,
-            website: result.result.website != null ? result.result.website : 'N/A',
+            website:
+                result.result.website != null ? result.result.website : 'N/A',
             openNow: result.result.openingHours != null
                 ? result.result.openingHours.openNow.toString()
                 : 'N/A',
             priceLevel: getPriceLevelDisplay(result.result.priceLevel),
             userRatingsTotal: result.result.userRatingsTotal);
       });
+
+      if (result.result.photos != null) {
+        getAttractionPhotosFromGoogle(result.result.photos[0].photoReference);
+      }
     }
   }
 
@@ -387,8 +399,8 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
     }
   }
 
-  void getAttractionPhotosFromGoogle() async {
-    Uint8List result = await googlePlace.photos.get(widget.reference, 600, 600);
+  void getAttractionPhotosFromGoogle(String photoReference) async {
+    Uint8List result = await googlePlace.photos.get(photoReference, 600, 600);
     if (result != null && mounted) {
       setState(() {
         photo = result;

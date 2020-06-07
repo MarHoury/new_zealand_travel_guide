@@ -66,8 +66,8 @@ class _PopularAttractionListViewState extends State<PopularAttractionListView>
                     attraction: widget.popularAttractionList[index],
                     animation: animation,
                     animationController: animationController,
-                    callback: (detailPlaceId, detailReference) {
-                      widget.callBack(detailPlaceId, detailReference);
+                    callback: (detailPlaceId) {
+                      widget.callBack(detailPlaceId);
                     },
                   );
                 },
@@ -107,7 +107,7 @@ class PopularAttractionView extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                callback(attraction.placeId, attraction.photoReference);
+                callback(attraction.placeId);
               },
               child: SizedBox(
                 width: 280,

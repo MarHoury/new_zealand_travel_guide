@@ -60,8 +60,8 @@ class _NearbyAttractionListViewState extends State<NearbyAttractionListView>
                   );
                   animationController.forward();
                   return NearbyAttractionView(
-                    callback: (detailPlaceId, detailReference) {
-                      widget.callBack(detailPlaceId, detailReference);
+                    callback: (detailPlaceId) {
+                      widget.callBack(detailPlaceId);
                     },
                     attraction: widget.nearbyAttractionList[index],
                     animation: animation,
@@ -110,7 +110,7 @@ class NearbyAttractionView extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                callback(attraction.placeId, attraction.photoReference);
+                callback(attraction.placeId);
               },
               child: SizedBox(
                 height: 280,
