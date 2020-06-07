@@ -1,9 +1,12 @@
+import 'package:geolocator/geolocator.dart';
+import 'package:google_place/google_place.dart';
 import 'package:new_zealand_travel_guide/attraction/popular_attraction_list_view.dart';
-import 'package:new_zealand_travel_guide/attraction/attraction_detail.dart';
+import 'package:new_zealand_travel_guide/attraction/attraction_detail_page.dart';
 import 'package:new_zealand_travel_guide/attraction/nearby_attraction_list_view.dart';
 import 'package:new_zealand_travel_guide/main.dart';
 import 'package:flutter/material.dart';
 import 'home_theme.dart';
+import 'models/attraction.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -11,7 +14,25 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  CategoryType categoryType = CategoryType.ui;
+  GooglePlace googlePlace;
+  List<AutocompletePrediction> predictions = [];
+  List<SearchResult> results = [];
+  List<Attraction> popularAttractions = [];
+  List<Attraction> nearbyAttractions = [];
+  Position currentPosition;
+  String detailPlaceId;
+  String detailReference;
+
+  @override
+  void initState() {
+    String apiKey = 'AIzaSyDVQyYIOmmXRMgyA_pQgCCsGr_iANHJbSA';
+    googlePlace = GooglePlace(apiKey);
+
+    getPopularAttractionsFromGoogle();
+    getNearbyAttractionsFromGoogle();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +87,10 @@ class _HomeState extends State<Home> {
           ),
         ),
         PopularAttractionListView(
-          callBack: () {
-            moveTo();
+          callBack: (detailPlaceId, detailReference) {
+            moveTo(detailPlaceId, detailReference);
           },
+          popularAttractionList: popularAttractions,
         ),
       ],
     );
@@ -93,9 +115,10 @@ class _HomeState extends State<Home> {
           ),
           Flexible(
             child: NearbyAttractionListView(
-              callBack: () {
-                moveTo();
+              callBack: (detailPlaceId, detailReference) {
+                moveTo(detailPlaceId, detailReference);
               },
+              nearbyAttractionList: nearbyAttractions,
             ),
           )
         ],
@@ -103,11 +126,11 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void moveTo() {
+  void moveTo(detailPlaceId, detailReference) {
     Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => AttractionDetail(),
+        builder: (BuildContext context) => AttractionDetailPage(placeId: detailPlaceId, reference: detailReference),
       ),
     );
   }
@@ -139,7 +162,7 @@ class _HomeState extends State<Home> {
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.only(left: 16, right: 16),
-                        child: TextFormField(
+                        child: TextField(
                           style: TextStyle(
                             fontFamily: 'WorkSans',
                             fontWeight: FontWeight.bold,
@@ -148,7 +171,7 @@ class _HomeState extends State<Home> {
                           ),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                            labelText: 'Search for course',
+                            labelText: 'Where do you want to go?',
                             border: InputBorder.none,
                             helperStyle: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -163,6 +186,17 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           onEditingComplete: () {},
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              autoCompleteSearch(value);
+                            } else {
+                              if (predictions.length > 0 && mounted) {
+                                setState(() {
+                                  predictions = [];
+                                });
+                              }
+                            }
+                          },
                         ),
                       ),
                     ),
@@ -186,7 +220,8 @@ class _HomeState extends State<Home> {
 
   Widget getAppBarUI() {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18, bottom: 8.0),
+      padding:
+          const EdgeInsets.only(top: 8.0, left: 18, right: 18, bottom: 8.0),
       child: Row(
         children: <Widget>[
           Expanded(
@@ -221,10 +256,69 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-}
 
-enum CategoryType {
-  ui,
-  coding,
-  basic,
+  void getPopularAttractionsFromGoogle() async {
+    var result = await googlePlace.search.getTextSearch(
+        'New Zealand point of interest',
+        type: 'tourist_attraction');
+    if (result != null && result.results != null && mounted) {
+      setState(() {
+        popularAttractions = result.results
+            .map((e) => new Attraction(
+                name: e.name,
+                icon: e.icon,
+                openNow:
+                    (e.openingHours == null || e.openingHours.openNow == null)
+                        ? false
+                        : true,
+                placeId: e.placeId,
+                rating: e.rating,
+                photoReference: (e.photos != null && e.photos.length > 0) ? e.photos[0].photoReference : ''))
+            .toList();
+      });
+    }
+  }
+
+  void getNearbyAttractionsFromGoogle() async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    var result = await googlePlace.search.getNearBySearch(
+        Location(lat: position.latitude, lng: position.longitude), 10000,
+        type: 'tourist_attraction');
+    if (result != null && result.results != null && mounted) {
+      setState(() {
+        nearbyAttractions = result.results
+            .map((e) => new Attraction(
+                name: e.name,
+                icon: e.icon,
+                openNow:
+                    (e.openingHours == null || e.openingHours.openNow == null)
+                        ? false
+                        : true,
+                placeId: e.placeId,
+                rating: e.rating,
+                photoReference: (e.photos != null && e.photos.length > 0) ? e.photos[0].photoReference : ''))
+            .toList();
+      });
+    }
+  }
+
+  void placeSearch(String query) async {
+    var result = await googlePlace.search
+        .getTextSearch(query, type: 'tourist_attraction');
+    if (result != null && result.results != null && mounted) {
+      setState(() {
+        results = result.results;
+      });
+    }
+  }
+
+  void autoCompleteSearch(String value) async {
+    var result = await googlePlace.autocomplete.get(value + ' New Zealand');
+    if (result != null && result.predictions != null && mounted) {
+      setState(() {
+        predictions = result.predictions;
+      });
+    }
+  }
 }

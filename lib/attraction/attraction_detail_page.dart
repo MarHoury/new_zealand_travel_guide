@@ -1,12 +1,22 @@
-import 'package:flutter/material.dart';
-import 'home_theme.dart';
+import 'dart:typed_data';
 
-class AttractionDetail extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:google_place/google_place.dart';
+import 'home_theme.dart';
+import 'models/attraction_detail.dart';
+
+class AttractionDetailPage extends StatefulWidget {
+  const AttractionDetailPage({Key key, this.placeId, this.reference})
+      : super(key: key);
+
+  final String placeId;
+  final String reference;
+
   @override
-  _AttractionDetailState createState() => _AttractionDetailState();
+  _AttractionDetailPageState createState() => _AttractionDetailPageState();
 }
 
-class _AttractionDetailState extends State<AttractionDetail>
+class _AttractionDetailPageState extends State<AttractionDetailPage>
     with TickerProviderStateMixin {
   final double infoHeight = 364.0;
   AnimationController animationController;
@@ -14,6 +24,10 @@ class _AttractionDetailState extends State<AttractionDetail>
   double opacity1 = 0.0;
   double opacity2 = 0.0;
   double opacity3 = 0.0;
+  GooglePlace googlePlace;
+  AttractionDetail attractionDetail;
+  Uint8List photo;
+
   @override
   void initState() {
     animationController = AnimationController(
@@ -22,6 +36,13 @@ class _AttractionDetailState extends State<AttractionDetail>
         parent: animationController,
         curve: Interval(0, 1.0, curve: Curves.fastOutSlowIn)));
     setData();
+
+    String apiKey = 'AIzaSyDVQyYIOmmXRMgyA_pQgCCsGr_iANHJbSA';
+    googlePlace = GooglePlace(apiKey);
+
+    getAttractionDetailFromGoogle();
+    getAttractionPhotosFromGoogle();
+
     super.initState();
   }
 
@@ -56,12 +77,17 @@ class _AttractionDetailState extends State<AttractionDetail>
               children: <Widget>[
                 AspectRatio(
                   aspectRatio: 1.2,
-                  child: Image.asset('assets/attraction/webInterFace.png'),
+                  child: photo != null
+                      ? Image.memory(
+                          photo,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset('assets/attraction/webInterFace.png'),
                 ),
               ],
             ),
             Positioned(
-              top: (MediaQuery.of(context).size.width / 1.2) - 24.0,
+              top: (MediaQuery.of(context).size.width / 1.2) - 40.0,
               bottom: 0,
               left: 0,
               right: 0,
@@ -95,7 +121,9 @@ class _AttractionDetailState extends State<AttractionDetail>
                             padding: const EdgeInsets.only(
                                 top: 32.0, left: 18, right: 16),
                             child: Text(
-                              'Web Design\nCourse',
+                              attractionDetail != null
+                                  ? attractionDetail.name
+                                  : 'Name',
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -113,11 +141,15 @@ class _AttractionDetailState extends State<AttractionDetail>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Text(
-                                  '\$28.99',
+                                  'User Ratings Total: ' +
+                                      (attractionDetail != null
+                                          ? attractionDetail.userRatingsTotal
+                                              .toString()
+                                          : 'N/A'),
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w200,
-                                    fontSize: 22,
+                                    fontSize: 18,
                                     letterSpacing: 0.27,
                                     color: HomeAppTheme.nearlyBlue,
                                   ),
@@ -126,7 +158,9 @@ class _AttractionDetailState extends State<AttractionDetail>
                                   child: Row(
                                     children: <Widget>[
                                       Text(
-                                        '4.3',
+                                        attractionDetail != null
+                                            ? attractionDetail.rating.toString()
+                                            : '0.0',
                                         textAlign: TextAlign.left,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w200,
@@ -153,9 +187,16 @@ class _AttractionDetailState extends State<AttractionDetail>
                               padding: const EdgeInsets.all(8),
                               child: Row(
                                 children: <Widget>[
-                                  getTimeBoxUI('24', 'Classe'),
-                                  getTimeBoxUI('2hours', 'Time'),
-                                  getTimeBoxUI('24', 'Seat'),
+                                  getTimeBoxUI(
+                                      attractionDetail != null
+                                          ? attractionDetail.openNow.toString()
+                                          : 'N/A',
+                                      'Open Now'),
+                                  getTimeBoxUI(
+                                      attractionDetail != null
+                                          ? attractionDetail.priceLevel
+                                          : 'N/A',
+                                      'Price Level'),
                                 ],
                               ),
                             ),
@@ -168,7 +209,17 @@ class _AttractionDetailState extends State<AttractionDetail>
                                 padding: const EdgeInsets.only(
                                     left: 16, right: 16, top: 8, bottom: 8),
                                 child: Text(
-                                  'Lorem ipsum is simply dummy text of printing & typesetting industry, Lorem ipsum is simply dummy text of printing & typesetting industry.',
+                                  attractionDetail != null
+                                      ? ('Website: ' +
+                                          attractionDetail.website +
+                                          '\n\n' +
+                                          'Phone: ' +
+                                          attractionDetail
+                                              .formattedPhoneNumber +
+                                          '\n\n' +
+                                          'Address: ' +
+                                          attractionDetail.formattedAddress)
+                                      : 'N/A',
                                   textAlign: TextAlign.justify,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w200,
@@ -176,78 +227,9 @@ class _AttractionDetailState extends State<AttractionDetail>
                                     letterSpacing: 0.27,
                                     color: HomeAppTheme.grey,
                                   ),
-                                  maxLines: 3,
+                                  maxLines: 10,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                            ),
-                          ),
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 500),
-                            opacity: opacity3,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, bottom: 16, right: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: HomeAppTheme.nearlyWhite,
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(16.0),
-                                        ),
-                                        border: Border.all(
-                                            color: HomeAppTheme.grey
-                                                .withOpacity(0.2)),
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: HomeAppTheme.nearlyBlue,
-                                        size: 28,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 16,
-                                  ),
-                                  Expanded(
-                                    child: Container(
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: HomeAppTheme.nearlyBlue,
-                                        borderRadius: const BorderRadius.all(
-                                          Radius.circular(16.0),
-                                        ),
-                                        boxShadow: <BoxShadow>[
-                                          BoxShadow(
-                                              color: HomeAppTheme
-                                                  .nearlyBlue
-                                                  .withOpacity(0.5),
-                                              offset: const Offset(1.1, 1.1),
-                                              blurRadius: 10.0),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'Join Course',
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 18,
-                                            letterSpacing: 0.0,
-                                            color: HomeAppTheme
-                                                .nearlyWhite,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
                               ),
                             ),
                           ),
@@ -350,7 +332,7 @@ class _AttractionDetailState extends State<AttractionDetail>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w200,
-                  fontSize: 14,
+                  fontSize: 12,
                   letterSpacing: 0.27,
                   color: HomeAppTheme.grey,
                 ),
@@ -360,5 +342,57 @@ class _AttractionDetailState extends State<AttractionDetail>
         ),
       ),
     );
+  }
+
+  void getAttractionDetailFromGoogle() async {
+    var result = await googlePlace.details.get(widget.placeId,
+        fields:
+            'name,formatted_address,formatted_phone_number,rating,website,photo,opening_hours,price_level,user_ratings_total');
+    if (result != null && result.result != null && mounted) {
+      setState(() {
+        attractionDetail = AttractionDetail(
+            name: result.result.name,
+            formattedAddress: result.result.formattedAddress != null ? result.result.formattedAddress : 'N/A',
+            formattedPhoneNumber: result.result.formattedPhoneNumber != null ? result.result.formattedPhoneNumber : 'N/A',
+            rating: result.result.rating,
+            website: result.result.website != null ? result.result.website : 'N/A',
+            openNow: result.result.openingHours != null
+                ? result.result.openingHours.openNow.toString()
+                : 'N/A',
+            priceLevel: getPriceLevelDisplay(result.result.priceLevel),
+            userRatingsTotal: result.result.userRatingsTotal);
+      });
+    }
+  }
+
+  String getPriceLevelDisplay(code) {
+    switch (code) {
+      case 0:
+        return 'Free';
+        break;
+      case 1:
+        return 'Inexpensive';
+        break;
+      case 2:
+        return 'Moderate';
+        break;
+      case 3:
+        return 'Expensive';
+        break;
+      case 4:
+        return 'Very Expensive';
+        break;
+      default:
+        return 'N/A';
+    }
+  }
+
+  void getAttractionPhotosFromGoogle() async {
+    Uint8List result = await googlePlace.photos.get(widget.reference, 600, 600);
+    if (result != null && mounted) {
+      setState(() {
+        photo = result;
+      });
+    }
   }
 }

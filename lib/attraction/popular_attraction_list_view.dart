@@ -4,11 +4,16 @@ import 'package:new_zealand_travel_guide/main.dart';
 import 'package:flutter/material.dart';
 
 class PopularAttractionListView extends StatefulWidget {
-  const PopularAttractionListView({Key key, this.callBack}) : super(key: key);
+  const PopularAttractionListView(
+      {Key key, this.callBack, this.popularAttractionList})
+      : super(key: key);
 
   final Function callBack;
+  final List<Attraction> popularAttractionList;
+
   @override
-  _PopularAttractionListViewState createState() => _PopularAttractionListViewState();
+  _PopularAttractionListViewState createState() =>
+      _PopularAttractionListViewState();
 }
 
 class _PopularAttractionListViewState extends State<PopularAttractionListView>
@@ -43,12 +48,12 @@ class _PopularAttractionListViewState extends State<PopularAttractionListView>
               return ListView.builder(
                 padding: const EdgeInsets.only(
                     top: 0, bottom: 0, right: 16, left: 16),
-                itemCount: Category.categoryList.length,
+                itemCount: widget.popularAttractionList.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
-                  final int count = Category.categoryList.length > 10
+                  final int count = widget.popularAttractionList.length > 10
                       ? 10
-                      : Category.categoryList.length;
+                      : widget.popularAttractionList.length;
                   final Animation<double> animation =
                       Tween<double>(begin: 0.0, end: 1.0).animate(
                           CurvedAnimation(
@@ -57,12 +62,12 @@ class _PopularAttractionListViewState extends State<PopularAttractionListView>
                                   curve: Curves.fastOutSlowIn)));
                   animationController.forward();
 
-                  return CategoryView(
-                    category: Category.categoryList[index],
+                  return PopularAttractionView(
+                    attraction: widget.popularAttractionList[index],
                     animation: animation,
                     animationController: animationController,
-                    callback: () {
-                      widget.callBack();
+                    callback: (detailPlaceId, detailReference) {
+                      widget.callBack(detailPlaceId, detailReference);
                     },
                   );
                 },
@@ -75,17 +80,17 @@ class _PopularAttractionListViewState extends State<PopularAttractionListView>
   }
 }
 
-class CategoryView extends StatelessWidget {
-  const CategoryView(
+class PopularAttractionView extends StatelessWidget {
+  const PopularAttractionView(
       {Key key,
-      this.category,
+      this.attraction,
       this.animationController,
       this.animation,
       this.callback})
       : super(key: key);
 
-  final VoidCallback callback;
-  final Category category;
+  final Function callback;
+  final Attraction attraction;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
@@ -102,7 +107,7 @@ class CategoryView extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                callback();
+                callback(attraction.placeId, attraction.photoReference);
               },
               child: SizedBox(
                 width: 280,
@@ -134,14 +139,13 @@ class CategoryView extends StatelessWidget {
                                             padding:
                                                 const EdgeInsets.only(top: 16),
                                             child: Text(
-                                              category.title,
+                                              attraction.name,
                                               textAlign: TextAlign.left,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,
                                                 letterSpacing: 0.27,
-                                                color: HomeAppTheme
-                                                    .darkerText,
+                                                color: HomeAppTheme.darkerText,
                                               ),
                                             ),
                                           ),
@@ -159,21 +163,22 @@ class CategoryView extends StatelessWidget {
                                                   CrossAxisAlignment.center,
                                               children: <Widget>[
                                                 Text(
-                                                  '${category.lessonCount} lesson',
+                                                  (attraction.openNow == true)
+                                                      ? 'Open'
+                                                      : 'Close',
                                                   textAlign: TextAlign.left,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w200,
                                                     fontSize: 12,
                                                     letterSpacing: 0.27,
-                                                    color: HomeAppTheme
-                                                        .grey,
+                                                    color: HomeAppTheme.grey,
                                                   ),
                                                 ),
                                                 Container(
                                                   child: Row(
                                                     children: <Widget>[
                                                       Text(
-                                                        '${category.rating}',
+                                                        '${attraction.rating}',
                                                         textAlign:
                                                             TextAlign.left,
                                                         style: TextStyle(
@@ -182,63 +187,16 @@ class CategoryView extends StatelessWidget {
                                                           fontSize: 18,
                                                           letterSpacing: 0.27,
                                                           color:
-                                                              HomeAppTheme
-                                                                  .grey,
+                                                              HomeAppTheme.grey,
                                                         ),
                                                       ),
                                                       Icon(
                                                         Icons.star,
-                                                        color:
-                                                            HomeAppTheme
-                                                                .nearlyBlue,
+                                                        color: HomeAppTheme
+                                                            .nearlyBlue,
                                                         size: 20,
                                                       ),
                                                     ],
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 16, right: 16),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text(
-                                                  '\$${category.money}',
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 18,
-                                                    letterSpacing: 0.27,
-                                                    color: HomeAppTheme
-                                                        .nearlyBlue,
-                                                  ),
-                                                ),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: HomeAppTheme
-                                                        .nearlyBlue,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(
-                                                                8.0)),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            4.0),
-                                                    child: Icon(
-                                                      Icons.add,
-                                                      color:
-                                                          HomeAppTheme
-                                                              .nearlyWhite,
-                                                    ),
                                                   ),
                                                 )
                                               ],
@@ -256,21 +214,27 @@ class CategoryView extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 24, bottom: 24, left: 16),
-                        child: Row(
-                          children: <Widget>[
-                            ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(16.0)),
-                              child: AspectRatio(
-                                  aspectRatio: 1.0,
-                                  child: Image.asset(category.imagePath)),
-                            )
-                          ],
-                        ),
-                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 24, bottom: 24, left: 16),
+                              child: Row(
+                                children: <Widget>[
+                                  ClipRRect(
+                                    borderRadius:
+                                    const BorderRadius.all(Radius.circular(16.0)),
+                                    child: AspectRatio(
+                                        aspectRatio: 1.0,
+                                        child: Image.network(attraction.icon)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      )
                     ),
                   ],
                 ),

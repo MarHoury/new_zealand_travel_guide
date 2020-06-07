@@ -4,16 +4,22 @@ import 'package:new_zealand_travel_guide/main.dart';
 import 'package:flutter/material.dart';
 
 class NearbyAttractionListView extends StatefulWidget {
-  const NearbyAttractionListView({Key key, this.callBack}) : super(key: key);
+  const NearbyAttractionListView(
+      {Key key, this.callBack, this.nearbyAttractionList})
+      : super(key: key);
 
   final Function callBack;
+  final List<Attraction> nearbyAttractionList;
+
   @override
-  _NearbyAttractionListViewState createState() => _NearbyAttractionListViewState();
+  _NearbyAttractionListViewState createState() =>
+      _NearbyAttractionListViewState();
 }
 
 class _NearbyAttractionListViewState extends State<NearbyAttractionListView>
     with TickerProviderStateMixin {
   AnimationController animationController;
+
   @override
   void initState() {
     animationController = AnimationController(
@@ -41,9 +47,9 @@ class _NearbyAttractionListViewState extends State<NearbyAttractionListView>
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               children: List<Widget>.generate(
-                Category.popularCourseList.length,
+                widget.nearbyAttractionList.length,
                 (int index) {
-                  final int count = Category.popularCourseList.length;
+                  final int count = widget.nearbyAttractionList.length;
                   final Animation<double> animation =
                       Tween<double>(begin: 0.0, end: 1.0).animate(
                     CurvedAnimation(
@@ -53,11 +59,11 @@ class _NearbyAttractionListViewState extends State<NearbyAttractionListView>
                     ),
                   );
                   animationController.forward();
-                  return CategoryView(
-                    callback: () {
-                      widget.callBack();
+                  return NearbyAttractionView(
+                    callback: (detailPlaceId, detailReference) {
+                      widget.callBack(detailPlaceId, detailReference);
                     },
-                    category: Category.popularCourseList[index],
+                    attraction: widget.nearbyAttractionList[index],
                     animation: animation,
                     animationController: animationController,
                   );
@@ -77,17 +83,17 @@ class _NearbyAttractionListViewState extends State<NearbyAttractionListView>
   }
 }
 
-class CategoryView extends StatelessWidget {
-  const CategoryView(
+class NearbyAttractionView extends StatelessWidget {
+  const NearbyAttractionView(
       {Key key,
-      this.category,
+      this.attraction,
       this.animationController,
       this.animation,
       this.callback})
       : super(key: key);
 
-  final VoidCallback callback;
-  final Category category;
+  final Function callback;
+  final Attraction attraction;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
@@ -104,7 +110,7 @@ class CategoryView extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                callback();
+                callback(attraction.placeId, attraction.photoReference);
               },
               child: SizedBox(
                 height: 280,
@@ -121,7 +127,7 @@ class CategoryView extends StatelessWidget {
                                 borderRadius: const BorderRadius.all(
                                     Radius.circular(16.0)),
                                 // border: new Border.all(
-                                //     color: DesignCourseAppTheme.notWhite),
+                                //     color: HomeAppTheme.notWhite),
                               ),
                               child: Column(
                                 children: <Widget>[
@@ -133,14 +139,13 @@ class CategoryView extends StatelessWidget {
                                             padding: const EdgeInsets.only(
                                                 top: 16, left: 16, right: 16),
                                             child: Text(
-                                              category.title,
+                                              attraction.name,
                                               textAlign: TextAlign.left,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,
                                                 letterSpacing: 0.27,
-                                                color: HomeAppTheme
-                                                    .darkerText,
+                                                color: HomeAppTheme.darkerText,
                                               ),
                                             ),
                                           ),
@@ -158,21 +163,20 @@ class CategoryView extends StatelessWidget {
                                                   CrossAxisAlignment.center,
                                               children: <Widget>[
                                                 Text(
-                                                  '${category.lessonCount} lesson',
+                                                  attraction.openNow == true ? 'Open' : 'Close',
                                                   textAlign: TextAlign.left,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w200,
                                                     fontSize: 12,
                                                     letterSpacing: 0.27,
-                                                    color: HomeAppTheme
-                                                        .grey,
+                                                    color: HomeAppTheme.grey,
                                                   ),
                                                 ),
                                                 Container(
                                                   child: Row(
                                                     children: <Widget>[
                                                       Text(
-                                                        '${category.rating}',
+                                                        '${attraction.rating}',
                                                         textAlign:
                                                             TextAlign.left,
                                                         style: TextStyle(
@@ -181,15 +185,13 @@ class CategoryView extends StatelessWidget {
                                                           fontSize: 18,
                                                           letterSpacing: 0.27,
                                                           color:
-                                                              HomeAppTheme
-                                                                  .grey,
+                                                              HomeAppTheme.grey,
                                                         ),
                                                       ),
                                                       Icon(
                                                         Icons.star,
-                                                        color:
-                                                            HomeAppTheme
-                                                                .nearlyBlue,
+                                                        color: HomeAppTheme
+                                                            .nearlyBlue,
                                                         size: 20,
                                                       ),
                                                     ],
@@ -225,8 +227,7 @@ class CategoryView extends StatelessWidget {
                                 const BorderRadius.all(Radius.circular(16.0)),
                             boxShadow: <BoxShadow>[
                               BoxShadow(
-                                  color: HomeAppTheme.grey
-                                      .withOpacity(0.2),
+                                  color: HomeAppTheme.grey.withOpacity(0.2),
                                   offset: const Offset(0.0, 0.0),
                                   blurRadius: 6.0),
                             ],
@@ -236,7 +237,7 @@ class CategoryView extends StatelessWidget {
                                 const BorderRadius.all(Radius.circular(16.0)),
                             child: AspectRatio(
                                 aspectRatio: 1.28,
-                                child: Image.asset(category.imagePath)),
+                                child: Image.network(attraction.icon)),
                           ),
                         ),
                       ),
