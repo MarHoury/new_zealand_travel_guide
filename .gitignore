@@ -90,4 +90,4 @@ lint/tmp/
 .packages
 .flutter-plugins
 .flutter-plugins-dependencies
-
+android/key.properties
