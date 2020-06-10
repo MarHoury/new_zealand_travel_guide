@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
+import 'package:weather/weather_library.dart';
 import 'home_theme.dart';
 import 'models/attraction_detail.dart';
 
@@ -32,9 +33,13 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
   double opacity3 = 0.0;
   AttractionDetail attractionDetail;
   Uint8List photo;
+  String weatherApiKey = 'd8c88fc2e193b1616502b9d12e1949b1';
+  WeatherStation ws;
+  Weather weather;
 
   @override
   void initState() {
+    ws = new WeatherStation(weatherApiKey);
     animationController = AnimationController(
         duration: const Duration(milliseconds: 1000), vsync: this);
     animation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
@@ -161,7 +166,8 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                                   child: Row(
                                     children: <Widget>[
                                       Text(
-                                        (attractionDetail != null && attractionDetail.rating != null)
+                                        (attractionDetail != null &&
+                                                attractionDetail.rating != null)
                                             ? attractionDetail.rating.toString()
                                             : '0.0',
                                         textAlign: TextAlign.left,
@@ -262,11 +268,15 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                     width: 60,
                     height: 60,
                     child: Center(
-                      child: Icon(
-                        Icons.favorite,
-                        color: HomeAppTheme.nearlyWhite,
-                        size: 30,
-                      ),
+                      child: weather != null
+                          ? Image.network('http://openweathermap.org/img/w/' +
+                              weather.weatherIcon +
+                              '.png')
+                          : Icon(
+                              Icons.favorite,
+                              color: HomeAppTheme.nearlyWhite,
+                              size: 30,
+                            ),
                     ),
                   ),
                 ),
@@ -350,7 +360,7 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
   void getAttractionDetailFromGoogle() async {
     var result = await googlePlace.details.get(this.placeId,
         fields:
-            'name,formatted_address,formatted_phone_number,rating,website,photo,opening_hours,price_level,user_ratings_total');
+            'name,formatted_address,formatted_phone_number,rating,website,photo,opening_hours,price_level,user_ratings_total,geometry');
     if (result != null && result.result != null && mounted) {
       setState(() {
         attractionDetail = AttractionDetail(
@@ -373,6 +383,11 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
 
       if (result.result.photos != null) {
         getAttractionPhotosFromGoogle(result.result.photos[0].photoReference);
+      }
+
+      if (result.result.geometry != null) {
+        getCurrentWeather(result.result.geometry.location.lat,
+            result.result.geometry.location.lng);
       }
     }
   }
@@ -404,6 +419,15 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
     if (result != null && mounted) {
       setState(() {
         photo = result;
+      });
+    }
+  }
+
+  void getCurrentWeather(double lat, double lng) async {
+    Weather result = await ws.currentWeather(lat, lng);
+    if (result != null) {
+      setState(() {
+        weather = result;
       });
     }
   }

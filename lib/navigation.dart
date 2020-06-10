@@ -1,10 +1,8 @@
 import 'package:new_zealand_travel_guide/app_theme.dart';
 import 'package:new_zealand_travel_guide/custom_drawer/drawer_user_controller.dart';
 import 'package:new_zealand_travel_guide/custom_drawer/home_drawer.dart';
-import 'package:new_zealand_travel_guide/feedback_screen.dart';
 import 'package:new_zealand_travel_guide/help_screen.dart';
 import 'package:new_zealand_travel_guide/attraction/home_page.dart';
-import 'package:new_zealand_travel_guide/invite_friend_screen.dart';
 import 'package:flutter/material.dart';
 
 class Navigation extends StatefulWidget {

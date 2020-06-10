@@ -1,3 +1,4 @@
+import 'package:crisp/crisp.dart';
 import 'package:new_zealand_travel_guide/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,11 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   void initState() {
     super.initState();
+
+    crisp.initialize(
+      websiteId: 'ed987632-07e6-4df6-bbdc-2c1fb8ddf65a',
+      locale: 'en-NZ',
+    );
   }
 
   @override
@@ -42,7 +48,7 @@ class _HelpScreenState extends State<HelpScreen> {
               Container(
                 padding: const EdgeInsets.only(top: 16),
                 child: const Text(
-                  'It looks like you are experiencing problems\nwith our sign up process. We are here to\nhelp so please get in touch with us',
+                  'It looks like you are experiencing problems\nwith our process. We are here to\nhelp so please get in touch with us',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -70,7 +76,9 @@ class _HelpScreenState extends State<HelpScreen> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            chatWithUs();
+                          },
                           child: Center(
                             child: Padding(
                               padding: const EdgeInsets.all(4.0),
@@ -88,11 +96,40 @@ class _HelpScreenState extends State<HelpScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void chatWithUs() {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (builder) {
+          return Container(
+              height: MediaQuery.of(context).size.height * 0.9,
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)),
+                  color: Colors.white),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: CrispView(
+                      loadingWidget: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  )
+
+                ],
+              ));
+        });
   }
 }

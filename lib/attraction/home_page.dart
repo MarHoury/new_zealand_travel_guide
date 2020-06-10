@@ -335,45 +335,44 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.transparent,
         builder: (builder) {
           return Container(
-            height: MediaQuery.of(context).size.height * 0.8,
-            padding: EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30)),
-                color: Colors.white),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: predictions.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          child: Icon(
-                            Icons.pin_drop,
-                            color: HomeAppTheme.nearlyWhite,
-                          ),
-                        ),
-                        title: Text(predictions[index].description),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AttractionDetailPage(
-                                placeId: predictions[index].placeId,
-                                googlePlace: this.googlePlace,
-                              ),
+              height: MediaQuery.of(context).size.height * 0.8,
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)),
+                  color: Colors.white),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: predictions.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: CircleAvatar(
+                            child: Icon(
+                              Icons.pin_drop,
+                              color: HomeAppTheme.nearlyWhite,
                             ),
-                          );
-                        },
-                      );
-                    },
+                          ),
+                          title: Text(predictions[index].description),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AttractionDetailPage(
+                                  placeId: predictions[index].placeId,
+                                  googlePlace: this.googlePlace,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            )
-          );
+                ],
+              ));
         });
   }
 }

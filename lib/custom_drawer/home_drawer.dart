@@ -94,7 +94,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                             ),
                             child: ClipRRect(
                               borderRadius: const BorderRadius.all(Radius.circular(60.0)),
-                              child: Image.asset('assets/images/userImage.jpg'),
+                              child: Image.asset('assets/images/logo.png'),
                             ),
                           ),
                         ),
@@ -104,7 +104,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8, left: 4),
                     child: Text(
-                      'Aaron Ma',
+                      'Coming soon...',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.grey,
