@@ -60,8 +60,8 @@ class _NearbyAttractionListViewState extends State<NearbyAttractionListView>
                   );
                   animationController.forward();
                   return NearbyAttractionView(
-                    callback: (detailPlaceId) {
-                      widget.callBack(detailPlaceId);
+                    callback: (detailPlaceId, photoReference) {
+                      widget.callBack(detailPlaceId, photoReference);
                     },
                     attraction: widget.nearbyAttractionList[index],
                     animation: animation,
@@ -110,7 +110,7 @@ class NearbyAttractionView extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                callback(attraction.placeId);
+                callback(attraction.placeId, attraction.photoReference);
               },
               child: SizedBox(
                 height: 280,
@@ -163,7 +163,9 @@ class NearbyAttractionView extends StatelessWidget {
                                                   CrossAxisAlignment.center,
                                               children: <Widget>[
                                                 Text(
-                                                  attraction.openNow == true ? 'Open' : 'Close',
+                                                  attraction.openNow == true
+                                                      ? 'Open'
+                                                      : 'Close',
                                                   textAlign: TextAlign.left,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w200,
@@ -237,7 +239,12 @@ class NearbyAttractionView extends StatelessWidget {
                                 const BorderRadius.all(Radius.circular(16.0)),
                             child: AspectRatio(
                                 aspectRatio: 1.28,
-                                child: Image.network(attraction.icon)),
+                                child: Image.network(
+                                  'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
+                                      attraction.photoReference +
+                                      '&sensor=false&maxheight=400&maxwidth=512&key=AIzaSyDVQyYIOmmXRMgyA_pQgCCsGr_iANHJbSA',
+                                  fit: BoxFit.cover,
+                                )),
                           ),
                         ),
                       ),

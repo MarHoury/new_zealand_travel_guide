@@ -8,24 +8,28 @@ import 'home_theme.dart';
 import 'models/attraction_detail.dart';
 
 class AttractionDetailPage extends StatefulWidget {
-  const AttractionDetailPage({Key key, this.placeId, this.googlePlace})
+  const AttractionDetailPage(
+      {Key key, this.placeId, this.photoReference, this.googlePlace})
       : super(key: key);
 
   final String placeId;
+  final String photoReference;
   final GooglePlace googlePlace;
 
   @override
-  _AttractionDetailPageState createState() =>
-      _AttractionDetailPageState(this.placeId, this.googlePlace);
+  _AttractionDetailPageState createState() => _AttractionDetailPageState(
+      this.placeId, this.photoReference, this.googlePlace);
 }
 
 class _AttractionDetailPageState extends State<AttractionDetailPage>
     with TickerProviderStateMixin {
   final double infoHeight = 364.0;
   final String placeId;
+  final String photoReference;
   final GooglePlace googlePlace;
 
-  _AttractionDetailPageState(this.placeId, this.googlePlace);
+  _AttractionDetailPageState(
+      this.placeId, this.photoReference, this.googlePlace);
 
   AnimationController animationController;
   Animation<double> animation;
@@ -84,12 +88,19 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
               children: <Widget>[
                 AspectRatio(
                   aspectRatio: 1.2,
-                  child: photo != null
-                      ? Image.memory(
-                          photo,
+                  child: (photoReference != null && photoReference != '')
+                      ? Image.network(
+                          'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
+                              photoReference +
+                              '&sensor=false&maxheight=500&maxwidth=600&key=AIzaSyDVQyYIOmmXRMgyA_pQgCCsGr_iANHJbSA',
                           fit: BoxFit.cover,
                         )
-                      : Image.asset('assets/attraction/webInterFace.png'),
+                      : (photo != null
+                          ? Image.memory(
+                              photo,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset('assets/attraction/webInterFace.png')),
                 ),
               ],
             ),
@@ -278,7 +289,7 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                       arrowLength: 0,
                       arrowTipDistance: 10,
                       minWidth: 130,
-                      minHeight: 50,
+                      minHeight: 75,
                       child: weather != null
                           ? Image.network('http://openweathermap.org/img/w/' +
                               weather.weatherIcon +
@@ -290,13 +301,14 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                             ),
                       content: Text(
                         weather != null
-                            ? ('Temperature: ' +
+                            ? (weather.weatherDescription + '\n\nTemperature: ' +
                                 weather.temperature.celsius.toStringAsFixed(0) +
                                 '℃\nHumidity: ' +
                                 weather.humidity.toStringAsFixed(0) +
                                 '\nWind Speed: ' +
-                                weather.windSpeed.toStringAsFixed(0) + 'km/h')
-                            : 'N/A',
+                                weather.windSpeed.toStringAsFixed(0) +
+                                'km/h')
+                            : 'Loading...',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 10,
@@ -407,7 +419,8 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
             userRatingsTotal: result.result.userRatingsTotal);
       });
 
-      if (result.result.photos != null) {
+      if ((photoReference == null || photoReference == '') &&
+          result.result.photos != null) {
         getAttractionPhotosFromGoogle(result.result.photos[0].photoReference);
       }
 

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:google_place/google_place.dart';
 import 'package:new_zealand_travel_guide/attraction/popular_attraction_list_view.dart';
@@ -20,8 +22,6 @@ class _HomePageState extends State<HomePage> {
   List<Attraction> popularAttractions = [];
   List<Attraction> nearbyAttractions = [];
   Position currentPosition;
-  String detailPlaceId;
-  String detailReference;
 
   @override
   void initState() {
@@ -87,8 +87,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         PopularAttractionListView(
-          callBack: (detailPlaceId) {
-            moveTo(detailPlaceId);
+          callBack: (detailPlaceId, photoReference) {
+            moveTo(detailPlaceId, photoReference);
           },
           popularAttractionList: popularAttractions,
         ),
@@ -115,8 +115,8 @@ class _HomePageState extends State<HomePage> {
           ),
           Flexible(
             child: NearbyAttractionListView(
-              callBack: (detailPlaceId) {
-                moveTo(detailPlaceId);
+              callBack: (detailPlaceId, photoReference) {
+                moveTo(detailPlaceId, photoReference);
               },
               nearbyAttractionList: nearbyAttractions,
             ),
@@ -126,12 +126,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void moveTo(detailPlaceId) {
+  void moveTo(detailPlaceId, photoReference) {
     Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
         builder: (BuildContext context) => AttractionDetailPage(
-            placeId: detailPlaceId, googlePlace: this.googlePlace),
+            placeId: detailPlaceId,
+            photoReference: photoReference,
+            googlePlace: this.googlePlace),
       ),
     );
   }

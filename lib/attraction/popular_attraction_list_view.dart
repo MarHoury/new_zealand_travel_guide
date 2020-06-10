@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:new_zealand_travel_guide/attraction/home_theme.dart';
 import 'package:new_zealand_travel_guide/attraction/models/attraction.dart';
 import 'package:new_zealand_travel_guide/main.dart';
@@ -66,8 +68,8 @@ class _PopularAttractionListViewState extends State<PopularAttractionListView>
                     attraction: widget.popularAttractionList[index],
                     animation: animation,
                     animationController: animationController,
-                    callback: (detailPlaceId) {
-                      widget.callBack(detailPlaceId);
+                    callback: (detailPlaceId, photoReference) {
+                      widget.callBack(detailPlaceId, photoReference);
                     },
                   );
                 },
@@ -107,7 +109,7 @@ class PopularAttractionView extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.transparent,
               onTap: () {
-                callback(attraction.placeId);
+                callback(attraction.placeId, attraction.photoReference);
               },
               child: SizedBox(
                 width: 280,
@@ -214,28 +216,32 @@ class PopularAttractionView extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 24, bottom: 24, left: 16),
-                              child: Row(
-                                children: <Widget>[
-                                  ClipRRect(
-                                    borderRadius:
-                                    const BorderRadius.all(Radius.circular(16.0)),
-                                    child: AspectRatio(
-                                        aspectRatio: 1.0,
-                                        child: Image.network(attraction.icon)),
-                                  )
-                                ],
-                              ),
+                        child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 24, bottom: 24, left: 16),
+                            child: Row(
+                              children: <Widget>[
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(16.0)),
+                                  child: AspectRatio(
+                                      aspectRatio: 1.0,
+                                      child: Image.network(
+                                        'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
+                                            attraction.photoReference +
+                                            '&sensor=false&maxheight=512&maxwidth=512&key=AIzaSyDVQyYIOmmXRMgyA_pQgCCsGr_iANHJbSA',
+                                        fit: BoxFit.cover,
+                                      )),
+                                )
+                              ],
                             ),
-                          )
-                        ],
-                      )
-                    ),
+                          ),
+                        )
+                      ],
+                    )),
                   ],
                 ),
               ),

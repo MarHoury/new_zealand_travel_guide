@@ -14,4 +14,5 @@ class Attraction {
   double rating;
   String icon;
   String photoReference;
+
 }
