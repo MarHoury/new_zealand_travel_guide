@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
+import 'package:simple_tooltip/simple_tooltip.dart';
 import 'package:weather/weather_library.dart';
 import 'home_theme.dart';
 import 'models/attraction_detail.dart';
@@ -268,6 +269,16 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                     width: 60,
                     height: 60,
                     child: Center(
+                        child: SimpleTooltip(
+                      animationDuration: Duration(seconds: 3),
+                      show: true,
+                      tooltipDirection: TooltipDirection.up,
+                      ballonPadding:
+                          EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                      arrowLength: 0,
+                      arrowTipDistance: 10,
+                      minWidth: 130,
+                      minHeight: 50,
                       child: weather != null
                           ? Image.network('http://openweathermap.org/img/w/' +
                               weather.weatherIcon +
@@ -277,7 +288,22 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                               color: HomeAppTheme.nearlyWhite,
                               size: 30,
                             ),
-                    ),
+                      content: Text(
+                        weather != null
+                            ? ('Temperature: ' +
+                                weather.temperature.celsius.toStringAsFixed(0) +
+                                '℃\nHumidity: ' +
+                                weather.humidity.toStringAsFixed(0) +
+                                '\nWind Speed: ' +
+                                weather.windSpeed.toStringAsFixed(0) + 'km/h')
+                            : 'N/A',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 10,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    )),
                   ),
                 ),
               ),

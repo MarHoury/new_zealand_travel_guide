@@ -37,6 +37,7 @@ dependencies:
   flutter_webview_plugin: ^0.3.11
   crisp: ^0.1.3
   weather: ^1.1.1
+  simple_tooltip: ^0.1.10
 
 
 dev_dependencies:
