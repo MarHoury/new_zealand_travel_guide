@@ -309,7 +309,7 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
               ),
             ),
             Positioned(
-              top: (MediaQuery.of(context).size.width / 1.2) - 24.0 - 35,
+              top: (MediaQuery.of(context).size.width / 1.2) - 24.0 - 50,
               right: 35,
               child: ScaleTransition(
                 alignment: Alignment.center,
