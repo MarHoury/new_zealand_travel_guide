@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_place/google_place.dart';
 import 'package:simple_tooltip/simple_tooltip.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:weather/weather_library.dart';
 import 'home_theme.dart';
 import 'models/attraction_detail.dart';
@@ -229,27 +230,70 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                               child: Padding(
                                 padding: const EdgeInsets.only(
                                     left: 16, right: 16, top: 8, bottom: 8),
-                                child: Text(
-                                  attractionDetail != null
-                                      ? ('Website: ' +
-                                          attractionDetail.website +
-                                          '\n\n' +
-                                          'Phone: ' +
-                                          attractionDetail
-                                              .formattedPhoneNumber +
-                                          '\n\n' +
-                                          'Address: ' +
-                                          attractionDetail.formattedAddress)
-                                      : 'N/A',
-                                  textAlign: TextAlign.justify,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w200,
-                                    fontSize: 14,
-                                    letterSpacing: 0.27,
-                                    color: HomeAppTheme.grey,
-                                  ),
-                                  maxLines: 10,
-                                  overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    InkWell(
+                                      child: Text(
+                                        attractionDetail != null
+                                            ? ('Website: ' +
+                                                attractionDetail.website +
+                                                '\n')
+                                            : 'N/A',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w200,
+                                          fontSize: 14,
+                                          letterSpacing: 0.27,
+                                          color: HomeAppTheme.grey,
+                                        ),
+                                        maxLines: 10,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      onTap: () async {
+                                        if (await canLaunch(
+                                            attractionDetail.website)) {
+                                          await launch(
+                                              attractionDetail.website);
+                                        }
+                                      },
+                                    ),
+                                    Text(
+                                      attractionDetail != null
+                                          ? ('Phone: ' +
+                                              attractionDetail
+                                                  .formattedPhoneNumber +
+                                              '\n')
+                                          : 'N/A',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w200,
+                                        fontSize: 14,
+                                        letterSpacing: 0.27,
+                                        color: HomeAppTheme.grey,
+                                      ),
+                                      maxLines: 10,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      attractionDetail != null
+                                          ? ('Address: ' +
+                                              attractionDetail
+                                                  .formattedAddress +
+                                              '\n')
+                                          : 'N/A',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w200,
+                                        fontSize: 14,
+                                        letterSpacing: 0.27,
+                                        color: HomeAppTheme.grey,
+                                      ),
+                                      maxLines: 10,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -301,7 +345,8 @@ class _AttractionDetailPageState extends State<AttractionDetailPage>
                             ),
                       content: Text(
                         weather != null
-                            ? (weather.weatherDescription + '\n\nTemperature: ' +
+                            ? (weather.weatherDescription +
+                                '\n\nTemperature: ' +
                                 weather.temperature.celsius.toStringAsFixed(0) +
                                 '℃\nHumidity: ' +
                                 weather.humidity.toStringAsFixed(0) +
