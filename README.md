@@ -1,16 +1,14 @@
-# new_zealand_travel_guide
+# New Zealand Travel Guide App
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-A New Zealand Travel Guide App
+## Technology Stack
+**Cross-end:** Flutter
 
-## Getting Started
+## Screenshots
+![Screenshot](/new-zealand-travel-guide-1.jpg)
+![Screenshot](/new-zealand-travel-guide-2.jpg)
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/in/haoyu-m-4b6a3174/
